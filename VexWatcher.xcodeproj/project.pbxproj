@@ -1,0 +1,504 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0EDE4B14C92E93E8390BFA16 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95419D6DF9BC44C13032DB21 /* Assets.xcassets */; };
+		12F2AB2AC27B1B1493AD589E /* VexWatcherWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 984D9BE8F70E65FFEE29AB38 /* VexWatcherWatch.app */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		2E2EB492044638CE7F34C183 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1DABF591450F340D486A7FA /* API.swift */; };
+		50F671EF45E3A7B84C5C69FD /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC51BDFE3C58C74DF3F1AA6 /* Models.swift */; };
+		82DCF15E1FA6C35C6D2E8767 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7856D732AC88593F028F5A /* Style.swift */; };
+		9BEE193C59B528BD0223C3CE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD077B5A94D0ADB6F69872A1 /* Assets.xcassets */; };
+		A7649E3C9641DC8B6EB16204 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC51BDFE3C58C74DF3F1AA6 /* Models.swift */; };
+		B1A0B5CA8A24A400B4489774 /* PhoneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0096615B72321E060BBB206 /* PhoneModel.swift */; };
+		C0022E258927354E5BF6AC20 /* WatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA731AE3D31F6DEBC2CF4BF0 /* WatchApp.swift */; };
+		C1E62536F8838AF87F5E780D /* WatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B233BCCCCF6293EA2FB2FC9 /* WatchView.swift */; };
+		C2034E342D308382F6B6D895 /* VexWatcherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C45AFBB900004D1D4C9838 /* VexWatcherApp.swift */; };
+		CE0B2E9DDC82E2BC47AFF8A2 /* ScoutMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 462D17873113BAB45345B272 /* ScoutMath.swift */; };
+		CF5B8366C6FA09F190476822 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7856D732AC88593F028F5A /* Style.swift */; };
+		D17AE9794D05C35E6B994343 /* WatchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1615A3C2DD78222893D6F308 /* WatchModel.swift */; };
+		F89A0557F8F1B72D65F2A385 /* PhoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEC4D3B97C833144C6DBAA95 /* PhoneView.swift */; };
+		FEE88DDCFEF7C6EB578447CE /* ScoutMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 462D17873113BAB45345B272 /* ScoutMath.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		50CE64F0A24AFAA75E62DA91 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AC2BE791722CC9E7023272F7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B7C84CA3208A94A0A0B606CA;
+			remoteInfo = VexWatcherWatch;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5C22C1FF6E262129EE003BDA /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				12F2AB2AC27B1B1493AD589E /* VexWatcherWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1615A3C2DD78222893D6F308 /* WatchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchModel.swift; sourceTree = "<group>"; };
+		3B233BCCCCF6293EA2FB2FC9 /* WatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchView.swift; sourceTree = "<group>"; };
+		44C45AFBB900004D1D4C9838 /* VexWatcherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VexWatcherApp.swift; sourceTree = "<group>"; };
+		462D17873113BAB45345B272 /* ScoutMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoutMath.swift; sourceTree = "<group>"; };
+		95419D6DF9BC44C13032DB21 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		984D9BE8F70E65FFEE29AB38 /* VexWatcherWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VexWatcherWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D21BC27978F9D76FCECA436 /* VexWatcher.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VexWatcher.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1DABF591450F340D486A7FA /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		AD077B5A94D0ADB6F69872A1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BC7856D732AC88593F028F5A /* Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Style.swift; sourceTree = "<group>"; };
+		DCC51BDFE3C58C74DF3F1AA6 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		EEC4D3B97C833144C6DBAA95 /* PhoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneView.swift; sourceTree = "<group>"; };
+		F0096615B72321E060BBB206 /* PhoneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneModel.swift; sourceTree = "<group>"; };
+		FA731AE3D31F6DEBC2CF4BF0 /* WatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		48ED4E861106DB04E174680E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9D21BC27978F9D76FCECA436 /* VexWatcher.app */,
+				984D9BE8F70E65FFEE29AB38 /* VexWatcherWatch.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6B8AF65EBE983C1B5DA7762B /* Watch */ = {
+			isa = PBXGroup;
+			children = (
+				AD077B5A94D0ADB6F69872A1 /* Assets.xcassets */,
+				FA731AE3D31F6DEBC2CF4BF0 /* WatchApp.swift */,
+				1615A3C2DD78222893D6F308 /* WatchModel.swift */,
+				3B233BCCCCF6293EA2FB2FC9 /* WatchView.swift */,
+			);
+			path = Watch;
+			sourceTree = "<group>";
+		};
+		99C83E53D845A9A30029F0AB = {
+			isa = PBXGroup;
+			children = (
+				CE8726207EAC8150E6E64FF7 /* VexWatcher */,
+				48ED4E861106DB04E174680E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C21CEA97A57E80727910E850 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				A1DABF591450F340D486A7FA /* API.swift */,
+				DCC51BDFE3C58C74DF3F1AA6 /* Models.swift */,
+				462D17873113BAB45345B272 /* ScoutMath.swift */,
+				BC7856D732AC88593F028F5A /* Style.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		CE8726207EAC8150E6E64FF7 /* VexWatcher */ = {
+			isa = PBXGroup;
+			children = (
+				FA7633A5E808A3E72AFE0F0C /* iOS */,
+				C21CEA97A57E80727910E850 /* Shared */,
+				6B8AF65EBE983C1B5DA7762B /* Watch */,
+			);
+			path = VexWatcher;
+			sourceTree = "<group>";
+		};
+		FA7633A5E808A3E72AFE0F0C /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				95419D6DF9BC44C13032DB21 /* Assets.xcassets */,
+				F0096615B72321E060BBB206 /* PhoneModel.swift */,
+				EEC4D3B97C833144C6DBAA95 /* PhoneView.swift */,
+				44C45AFBB900004D1D4C9838 /* VexWatcherApp.swift */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B7C84CA3208A94A0A0B606CA /* VexWatcherWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7E947178ACFB80AD62CF385E /* Build configuration list for PBXNativeTarget "VexWatcherWatch" */;
+			buildPhases = (
+				91D957656B78429143067072 /* Sources */,
+				889A444D04AC08D64B619177 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VexWatcherWatch;
+			packageProductDependencies = (
+			);
+			productName = VexWatcherWatch;
+			productReference = 984D9BE8F70E65FFEE29AB38 /* VexWatcherWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		EFA312B6357699C2D68A9817 /* VexWatcher */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 137A63E08DFC5FF58CD8077E /* Build configuration list for PBXNativeTarget "VexWatcher" */;
+			buildPhases = (
+				EEE59BEFC67DC25BAE82325F /* Sources */,
+				57190F476A1CDCD2AB34FEA7 /* Resources */,
+				5C22C1FF6E262129EE003BDA /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				92D1774567CC82780CB33D6F /* PBXTargetDependency */,
+			);
+			name = VexWatcher;
+			packageProductDependencies = (
+			);
+			productName = VexWatcher;
+			productReference = 9D21BC27978F9D76FCECA436 /* VexWatcher.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AC2BE791722CC9E7023272F7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					B7C84CA3208A94A0A0B606CA = {
+						ProvisioningStyle = Automatic;
+					};
+					EFA312B6357699C2D68A9817 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = FCF7DC98A767815C2AABF5B0 /* Build configuration list for PBXProject "VexWatcher" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 99C83E53D845A9A30029F0AB;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 48ED4E861106DB04E174680E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EFA312B6357699C2D68A9817 /* VexWatcher */,
+				B7C84CA3208A94A0A0B606CA /* VexWatcherWatch */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		57190F476A1CDCD2AB34FEA7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0EDE4B14C92E93E8390BFA16 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		889A444D04AC08D64B619177 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9BEE193C59B528BD0223C3CE /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		91D957656B78429143067072 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				50F671EF45E3A7B84C5C69FD /* Models.swift in Sources */,
+				FEE88DDCFEF7C6EB578447CE /* ScoutMath.swift in Sources */,
+				82DCF15E1FA6C35C6D2E8767 /* Style.swift in Sources */,
+				C0022E258927354E5BF6AC20 /* WatchApp.swift in Sources */,
+				D17AE9794D05C35E6B994343 /* WatchModel.swift in Sources */,
+				C1E62536F8838AF87F5E780D /* WatchView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEE59BEFC67DC25BAE82325F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2E2EB492044638CE7F34C183 /* API.swift in Sources */,
+				A7649E3C9641DC8B6EB16204 /* Models.swift in Sources */,
+				B1A0B5CA8A24A400B4489774 /* PhoneModel.swift in Sources */,
+				F89A0557F8F1B72D65F2A385 /* PhoneView.swift in Sources */,
+				CE0B2E9DDC82E2BC47AFF8A2 /* ScoutMath.swift in Sources */,
+				CF5B8366C6FA09F190476822 /* Style.swift in Sources */,
+				C2034E342D308382F6B6D895 /* VexWatcherApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		92D1774567CC82780CB33D6F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B7C84CA3208A94A0A0B606CA /* VexWatcherWatch */;
+			targetProxy = 50CE64F0A24AFAA75E62DA91 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0877467886F93E16AD9C0857 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		44F030BA1F7E6439C604726D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VexWatcher/Watch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Vex Watcher";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.vexwatcher.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vexwatcher.app.watch;
+				PRODUCT_NAME = VexWatcherWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		772AF2B1911233D46EE418CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VexWatcher/iOS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Vex Watcher";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.vexwatcher.app;
+				PRODUCT_NAME = VexWatcher;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		A131DE02A27E7FF12466A3D2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VexWatcher/iOS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Vex Watcher";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.vexwatcher.app;
+				PRODUCT_NAME = VexWatcher;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		FDEE3E255D2FAE3814533D14 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VexWatcher/Watch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Vex Watcher";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.vexwatcher.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vexwatcher.app.watch;
+				PRODUCT_NAME = VexWatcherWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		FFDA75370797FE0CDC0497EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		137A63E08DFC5FF58CD8077E /* Build configuration list for PBXNativeTarget "VexWatcher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				772AF2B1911233D46EE418CB /* Debug */,
+				A131DE02A27E7FF12466A3D2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7E947178ACFB80AD62CF385E /* Build configuration list for PBXNativeTarget "VexWatcherWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FDEE3E255D2FAE3814533D14 /* Debug */,
+				44F030BA1F7E6439C604726D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		FCF7DC98A767815C2AABF5B0 /* Build configuration list for PBXProject "VexWatcher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0877467886F93E16AD9C0857 /* Debug */,
+				FFDA75370797FE0CDC0497EA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AC2BE791722CC9E7023272F7 /* Project object */;
+}
