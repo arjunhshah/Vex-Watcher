@@ -22,17 +22,21 @@ struct PhoneView: View {
                 .tabItem {
                     Label("Scout", systemImage: "list.clipboard")
                 }
-            StrategyView()
+            eventsRoot
                 .tabItem {
-                    Label("Strategy", systemImage: "lightbulb")
+                    Label("Events", systemImage: "flag.checkered")
                 }
             PitFormView(model: model)
                 .tabItem {
                     Label("Pit", systemImage: "wrench.and.screwdriver")
                 }
-            eventsRoot
+            AllianceView(model: model)
                 .tabItem {
-                    Label("Events", systemImage: "flag.checkered")
+                    Label("Alliance", systemImage: "person.2")
+                }
+            StrategyView()
+                .tabItem {
+                    Label("Strategy", systemImage: "lightbulb")
                 }
         }
         .tint(.accentColor)

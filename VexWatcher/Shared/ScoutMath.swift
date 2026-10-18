@@ -30,6 +30,36 @@ struct RawTeam {
     var recent: [RecentMatch]
 }
 
+struct AlliancePick: Identifiable, Equatable {
+    var number: String
+    var name: String
+    var chance: Int?
+    var line: String
+    var id: String { number }
+}
+
+struct AllianceOutlook: Equatable {
+    var picks: [AlliancePick]
+    var basis: String
+}
+
+private enum AllianceBasis {
+    case pointsAdded
+    case averageScore
+    case rating
+
+    var note: String {
+        switch self {
+        case .pointsAdded:
+            return "The percent is how often 95070D and that team would outscore a random other alliance, using the points each robot adds."
+        case .averageScore:
+            return "The percent is how often 95070D and that team would outscore a random other alliance, using average match score."
+        case .rating:
+            return "Match scores are not in yet. The percent compares event ratings instead."
+        }
+    }
+}
+
 enum ScoutMath {
     /// Overall percent blends win rate, rank, skills, and scoring against this event only.
     static func rate(_ rawTeams: [RawTeam], opr: [Int: Double]) -> [TeamReport] {
@@ -256,6 +286,104 @@ enum ScoutMath {
 
     private static func played(_ team: RawTeam) -> Int {
         team.wins + team.losses + team.ties
+    }
+
+    /// Chance the home team beats a random other alliance with each partner at this event.
+    static func allianceChances(home: TeamReport, teams: [TeamReport]) -> AllianceOutlook {
+        let field = teams.contains(where: { $0.id == home.id }) ? teams : teams + [home]
+        let (basis, strength) = allianceStrengths(field)
+        let partners = field.filter { $0.id != home.id }
+        let picks = partners.map { partner -> AlliancePick in
+            let ours = (strength[home.id] ?? 0) + (strength[partner.id] ?? 0)
+            let rest = partners.filter { $0.id != partner.id }
+            var wins = 0.0
+            var pairs = 0
+            if rest.count >= 2 {
+                for left in 0..<rest.count {
+                    for right in (left + 1)..<rest.count {
+                        pairs += 1
+                        let theirs = (strength[rest[left].id] ?? 0) + (strength[rest[right].id] ?? 0)
+                        if ours > theirs {
+                            wins += 1
+                        } else if ours == theirs {
+                            wins += 0.5
+                        }
+                    }
+                }
+            }
+            let chance = pairs > 0 ? Int((wins / Double(pairs) * 100).rounded()) : nil
+            return AlliancePick(
+                number: partner.number,
+                name: partner.name,
+                chance: chance,
+                line: allianceLine(partner, basis: basis)
+            )
+        }
+        .sorted { lhs, rhs in
+            switch (lhs.chance, rhs.chance) {
+            case let (left?, right?) where left != right:
+                return left > right
+            case (_?, nil):
+                return true
+            case (nil, _?):
+                return false
+            default:
+                return lhs.number.localizedStandardCompare(rhs.number) == .orderedAscending
+            }
+        }
+        return AllianceOutlook(picks: picks, basis: basis.note)
+    }
+
+    private static func allianceStrengths(_ teams: [TeamReport]) -> (AllianceBasis, [Int: Double]) {
+        let oprs = teams.compactMap(\.opr)
+        if oprs.count * 2 >= max(teams.count, 1), let middle = median(oprs) {
+            var map: [Int: Double] = [:]
+            for team in teams {
+                map[team.id] = team.opr ?? middle
+            }
+            return (.pointsAdded, map)
+        }
+        let averages = teams.compactMap { team -> Double? in
+            team.wins + team.losses + team.ties > 0 ? team.averagePoints : nil
+        }
+        if averages.count * 2 >= max(teams.count, 1), let middle = median(averages) {
+            var map: [Int: Double] = [:]
+            for team in teams {
+                let played = team.wins + team.losses + team.ties > 0
+                map[team.id] = played ? team.averagePoints : middle
+            }
+            return (.averageScore, map)
+        }
+        return (.rating, Dictionary(uniqueKeysWithValues: teams.map { ($0.id, Double($0.overall)) }))
+    }
+
+    private static func allianceLine(_ team: TeamReport, basis: AllianceBasis) -> String {
+        var parts: [String] = []
+        if team.rank > 0 { parts.append(team.placeLabel) }
+        if team.wins + team.losses + team.ties > 0 { parts.append(team.record) }
+        switch basis {
+        case .pointsAdded:
+            if let opr = team.opr {
+                parts.append("adds about \(Int(opr.rounded())) points")
+            }
+        case .averageScore:
+            if team.wins + team.losses + team.ties > 0 {
+                parts.append("about \(Int(team.averagePoints.rounded())) points a match")
+            }
+        case .rating:
+            parts.append("\(team.overall)% rating")
+        }
+        return parts.joined(separator: " · ")
+    }
+
+    private static func median(_ values: [Double]) -> Double? {
+        guard !values.isEmpty else { return nil }
+        let sorted = values.sorted()
+        let mid = sorted.count / 2
+        if sorted.count % 2 == 0 {
+            return (sorted[mid - 1] + sorted[mid]) / 2
+        }
+        return sorted[mid]
     }
 
     static func grade(_ percent: Int) -> String {

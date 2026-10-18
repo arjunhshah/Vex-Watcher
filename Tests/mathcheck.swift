@@ -59,6 +59,19 @@ struct MathCheck {
         check("opr near 8", near(power[3], 8, tolerance: 2))
         check("opr near 4", near(power[4], 4, tolerance: 2))
         check("absent team has no opr", power[9] == nil)
+        let home = allianceTeam(id: 1, number: "95070D", opr: 20)
+        let partners = [
+            home,
+            allianceTeam(id: 2, number: "A", opr: 25),
+            allianceTeam(id: 3, number: "B", opr: 30),
+            allianceTeam(id: 4, number: "C", opr: 10),
+            allianceTeam(id: 5, number: "D", opr: 5)
+        ]
+        let outlook = ScoutMath.allianceChances(home: home, teams: partners)
+        check("best partner is A", outlook.picks.first?.number == "A")
+        check("A wins every other alliance", outlook.picks.first { $0.number == "A" }?.chance == 100)
+        check("C wins about one in six", outlook.picks.first { $0.number == "C" }?.chance == 17)
+
         if let problem = ScoutMath.selfCheck() {
             failed += 1
             print("FAIL selfCheck \(problem)")
@@ -71,6 +84,34 @@ struct MathCheck {
             exit(1)
         }
         print("all math checks passed")
+    }
+
+    static func allianceTeam(id: Int, number: String, opr: Double) -> TeamReport {
+        TeamReport(
+            id: id,
+            number: number,
+            name: number,
+            organization: "",
+            rank: id,
+            wins: 1,
+            losses: 0,
+            ties: 0,
+            wp: 2,
+            ap: 0,
+            sp: 0,
+            highScore: 40,
+            averagePoints: 20,
+            driver: nil,
+            programming: nil,
+            driverRank: nil,
+            programmingRank: nil,
+            opr: opr,
+            overall: 50,
+            grade: "Good",
+            abilities: [],
+            components: [],
+            recent: []
+        )
     }
 
     static func sample(id: Int, rank: Int) -> RawTeam {
