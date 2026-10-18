@@ -12,7 +12,7 @@ Percents compare teams in the same division. An 80% at a local event is only an 
 2. At the top, next to VexWatcher, choose **Arjun’s iPhone**. Do not choose any destination that says Simulator.
 3. In Signing & Capabilities, set your Apple Team for both **VexWatcher** and **VexWatcherWatch**.
 4. Unlock that iPhone and keep your real watch on your wrist, nearby. Press Run. Xcode installs Vex Watcher on the iPhone, and the iPhone installs it on the watch paired with it.
-5. On the iPhone, tap **Token** and paste a RobotEvents API token from [robotevents.com/api/v2](https://www.robotevents.com/api/v2).
+5. On the iPhone, tap **Token** and paste a RobotEvents API token from [events.vex.com/api/v2](https://events.vex.com/api/v2).
 6. Enter your team number, or an event code such as `RE-V5RC-26-1234`.
 
 Leave the event open on the iPhone during a competition. It refreshes about every 45 seconds while the event is live and sends the new ratings to the watch. If the iPhone is not reachable, the watch keeps the last snapshot and says to open Vex Watcher on the iPhone.

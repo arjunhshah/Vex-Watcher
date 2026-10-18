@@ -8,12 +8,41 @@ private enum Route: Hashable {
 struct PhoneView: View {
     @ObservedObject var model: PhoneModel
     @State private var path = NavigationPath()
+    @StateObject private var scouts = ScoutStore()
+    @State private var scoutDraft = ScoutDraft()
     @State private var showToken = false
 
     var body: some View {
+        TabView {
+            AwardsView(model: model)
+                .tabItem {
+                    Label("Awards", systemImage: "rosette")
+                }
+            ScoutFormView(model: model, store: scouts, draft: $scoutDraft)
+                .tabItem {
+                    Label("Scout", systemImage: "list.clipboard")
+                }
+            StrategyView()
+                .tabItem {
+                    Label("Strategy", systemImage: "lightbulb")
+                }
+            PitFormView(model: model)
+                .tabItem {
+                    Label("Pit", systemImage: "wrench.and.screwdriver")
+                }
+            eventsRoot
+                .tabItem {
+                    Label("Events", systemImage: "flag.checkered")
+                }
+        }
+        .tint(.accentColor)
+        .task { await model.bootstrap() }
+    }
+
+    private var eventsRoot: some View {
         NavigationStack(path: $path) {
             HomeScreen(model: model)
-                .navigationTitle("Vex Watcher")
+                .navigationTitle("95070D")
                 .navigationDestination(for: Route.self) { route in
                     switch route {
                     case .event(let id):
@@ -40,8 +69,6 @@ struct PhoneView: View {
                     model.pendingEventID = nil
                 }
         }
-        .tint(.accentColor)
-        .task { await model.bootstrap() }
     }
 }
 
@@ -53,7 +80,6 @@ private struct HomeScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                watchCard
                 teamCard
                 if let report = model.report {
                     if let mine = model.myTeam(in: report) {
@@ -73,41 +99,15 @@ private struct HomeScreen: View {
                         .foregroundStyle(.red)
                 }
                 eventsCard
-                Text("Your iPhone downloads the event and sends the ratings straight to your paired watch. Percents compare teams at the same event.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
             }
             .padding(20)
         }
-        .background(Color(.systemGroupedBackground))
+        .vexScreen()
         .refreshable { await model.reload(keepCurrent: true) }
         .onAppear { teamDraft = model.teamNumber }
         .onChange(of: model.teamNumber) { _, number in
             if teamDraft != number { teamDraft = number }
         }
-    }
-
-    private var watchCard: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "applewatch")
-                .font(.title2)
-                .foregroundStyle(Color.accentColor)
-                .frame(width: 44, height: 44)
-                .background(Color.accentColor.opacity(0.12), in: Circle())
-            VStack(alignment: .leading, spacing: 3) {
-                Text(model.watchStatus)
-                    .font(.headline)
-                Text(model.loading ? "Refreshing…" : model.status)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-            Spacer(minLength: 0)
-            if model.loading { ProgressView() }
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     private var teamCard: some View {
@@ -145,9 +145,7 @@ private struct HomeScreen: View {
                     .disabled(model.loading || query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .vexCard()
     }
 
     private var eventsCard: some View {
@@ -155,7 +153,9 @@ private struct HomeScreen: View {
             Text("Events")
                 .font(.headline)
             if model.orderedEvents.isEmpty {
-                Text(model.token.isEmpty ? "Add your token first." : "No events yet. Enter a team number or an event code like RE-V5RC-26-1234.")
+                Text(model.token.isEmpty
+                    ? "Tap Token and paste a free Robot Events API token from events.vex.com/api/v2."
+                    : "No events yet. Enter a team number or an event code like RE-V5RC-26-1234.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else {
@@ -173,12 +173,13 @@ private struct HomeScreen: View {
                             }
                             Spacer(minLength: 8)
                             if event.isLive {
-                                Text("Live")
-                                    .font(.caption.weight(.semibold))
+                                Text("LIVE")
+                                    .font(.caption2.weight(.bold))
+                                    .tracking(0.6)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
-                                    .background(Color.accentColor.opacity(0.14), in: Capsule())
-                                    .foregroundStyle(Color.accentColor)
+                                    .background(VexLook.red, in: Capsule())
+                                    .foregroundStyle(.white)
                             }
                         }
                         .padding(.vertical, 6)
@@ -186,9 +187,7 @@ private struct HomeScreen: View {
                 }
             }
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .vexCard()
     }
 }
 
@@ -197,35 +196,22 @@ private struct HeroCard: View {
     var eventName: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("\(team.overall)%")
-                    .font(.system(size: 52, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(team.tint)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(team.grade)
-                        .font(.headline)
-                    Text(team.number)
-                        .font(.subheadline.weight(.semibold))
-                }
-                Spacer()
-            }
-            Text(eventName)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 12) {
+            ScorePlate(percent: team.overall, grade: team.grade, caption: "\(team.number) · \(eventName)")
             Text("\(team.placeLabel) · \(team.record)")
-                .font(.subheadline.monospacedDigit())
-            VStack(alignment: .leading, spacing: 4) {
+                .font(.subheadline.weight(.medium).monospacedDigit())
+            VStack(alignment: .leading, spacing: 6) {
                 ForEach(team.abilities, id: \.self) { line in
-                    Text(line)
-                        .font(.subheadline)
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(VexLook.red)
+                            .frame(width: 6, height: 6)
+                        Text(line)
+                            .font(.subheadline)
+                    }
                 }
             }
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 }
 
@@ -277,6 +263,8 @@ private struct EventScreen: View {
                 ContentUnavailableView("No results", systemImage: "flag.checkered", description: Text(model.errorMessage ?? "Pull to try again."))
             }
         }
+        .scrollContentBackground(.hidden)
+        .vexScreen()
         .refreshable { await model.open(eventID: eventID, divisionID: model.report?.divisionID) }
         .task(id: eventID) {
             await model.open(eventID: eventID)
@@ -318,9 +306,12 @@ private struct TeamRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(team.number)
                     .font(.body.weight(.semibold))
-                Text("\(team.placeLabel) · \(team.record) · \(team.grade)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 6) {
+                    Text("\(team.placeLabel) · \(team.record)")
+                    GradePill(grade: team.grade)
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
                 if let line = team.abilities.first {
                     Text(line)
                         .font(.caption)
@@ -344,19 +335,7 @@ struct TeamDetail: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text("\(team.overall)%")
-                        .font(.system(size: 64, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(team.tint)
-                    VStack(alignment: .leading) {
-                        Text(team.grade)
-                            .font(.title3.weight(.semibold))
-                        Text(team.placeLabel)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                }
+                ScorePlate(percent: team.overall, grade: team.grade, caption: team.placeLabel)
                 Text(team.name)
                     .font(.headline)
                 if !team.organization.isEmpty {
@@ -376,8 +355,7 @@ struct TeamDetail: View {
                         PercentBar(name: component.name, percent: component.percent)
                     }
                 }
-                .padding(16)
-                .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .vexCard()
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                     stat("Record", team.record)
@@ -424,7 +402,7 @@ struct TeamDetail: View {
             }
             .padding(20)
         }
-        .background(Color(.systemGroupedBackground))
+        .vexScreen()
         .navigationTitle(team.number)
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -439,7 +417,7 @@ struct TeamDetail: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
-        .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(.background, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func skillText(_ score: Int?, rank: Int?) -> String {
@@ -450,9 +428,9 @@ struct TeamDetail: View {
 
     private func resultColor(_ result: String) -> Color {
         switch result {
-        case "W": return Color(red: 0, green: 0.52, blue: 0.32)
-        case "L": return Color(red: 0.78, green: 0.09, blue: 0.18)
-        default: return .orange
+        case "W": return VexLook.green
+        case "L": return VexLook.red
+        default: return VexLook.amber
         }
     }
 }
@@ -471,10 +449,10 @@ private struct TokenSheet: View {
                         .autocorrectionDisabled()
                         .lineLimit(3...6)
                 } footer: {
-                    Text("Get a free token at robotevents.com/api/v2. It stays on this iPhone. The watch only receives the ratings.")
+                    Text("Get a free token at events.vex.com. Sign in, request access, create a token, and paste it here. It stays on this iPhone.")
                 }
                 Section {
-                    Link("Open RobotEvents API", destination: URL(string: "https://www.robotevents.com/api/v2")!)
+                    Link("Open VEX Events API", destination: URL(string: "https://events.vex.com/api/v2/accessRequest/create")!)
                 }
             }
             .navigationTitle("Token")
@@ -497,3 +475,4 @@ private struct TokenSheet: View {
         }
     }
 }
+

@@ -10,7 +10,7 @@ final class PhoneModel: NSObject, ObservableObject {
     @Published var season = SeasonInfo(id: 0, name: "")
     @Published var events: [EventSummary] = []
     @Published var report: EventReport?
-    @Published var status = "Add a RobotEvents token to start."
+    @Published var status = "Scout teams on this phone."
     @Published var errorMessage: String?
     @Published var loading = false
     @Published var watchStatus = "Pair your Apple Watch"
@@ -25,7 +25,6 @@ final class PhoneModel: NSObject, ObservableObject {
         guard !started else { return }
         started = true
         loadCache()
-        activateWatch()
         guard !cleanedToken.isEmpty else { return }
         await reload(keepCurrent: report != nil)
     }
@@ -256,7 +255,8 @@ final class PhoneModel: NSObject, ObservableObject {
 
     private func loadCache() {
         token = defaults.string(forKey: Keys.token) ?? ""
-        teamNumber = defaults.string(forKey: Keys.team) ?? ""
+        teamNumber = "95070D"
+        defaults.set(teamNumber, forKey: Keys.team)
         if defaults.object(forKey: Keys.program) != nil {
             programID = defaults.integer(forKey: Keys.program)
         }

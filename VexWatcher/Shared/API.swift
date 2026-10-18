@@ -8,9 +8,9 @@ enum APIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingToken:
-            return "Add a RobotEvents token on your iPhone."
+            return "Live rankings are off. Use Scout to record teams on this phone."
         case .unauthorized:
-            return "That RobotEvents token was rejected. Paste a new one from robotevents.com/api/v2."
+            return "That RobotEvents token was rejected. Paste a new one from events.vex.com/api/v2."
         case .message(let text):
             return text
         }
@@ -192,7 +192,9 @@ struct RobotEventsAPI {
             ongoing: event.isLive,
             updated: Date(),
             teams: rated,
-            note: note
+            note: note,
+            championNumbers: championNumbers(matches: matches, numbers: numbers, eventFinished: !event.isLive),
+            schoolLevels: schoolLevels(teams)
         )
     }
 
@@ -228,6 +230,44 @@ struct RobotEventsAPI {
             programmingRank: skill?.programmingRank,
             recent: recentMatches(for: id, matches: matches, numbers: numbers)
         )
+    }
+
+    private func schoolLevels(_ teams: [RETeam]) -> [String: String] {
+        var levels: [String: String] = [:]
+        for team in teams {
+            let number = normalizedTeamNumber(team.number)
+            let grade = team.grade.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !number.isEmpty, !grade.isEmpty else { continue }
+            levels[number] = grade
+        }
+        return levels
+    }
+
+    private func championNumbers(matches: [REMatch], numbers: [Int: String], eventFinished: Bool) -> [String] {
+        let elims = matches.filter { $0.scored && $0.round >= 3 }
+        guard let finalRound = elims.map(\.round).max() else { return [] }
+        let stillPlaying = matches.contains { $0.round == finalRound && !$0.scored }
+        if stillPlaying { return [] }
+
+        var wins: [String: Int] = [:]
+        var labels: [String: [String]] = [:]
+        for match in elims where match.round == finalRound {
+            let scores = match.alliances.map(\.score)
+            guard let best = scores.max(), scores.filter({ $0 == best }).count == 1,
+                  let winner = match.alliances.first(where: { $0.score == best }) else { continue }
+            let ids = winner.teams.filter { !$0.sitting }.map(\.teamID).sorted()
+            guard !ids.isEmpty else { continue }
+            let key = ids.map(String.init).joined(separator: "-")
+            wins[key, default: 0] += 1
+            labels[key] = ids.compactMap { numbers[$0] }
+        }
+        guard let bestWins = wins.values.max(),
+              wins.filter({ $0.value == bestWins }).count == 1,
+              let key = wins.first(where: { $0.value == bestWins })?.key else { return [] }
+        let otherBest = wins.filter { $0.key != key }.values.max() ?? 0
+        let clinched = bestWins >= 2 || (eventFinished && bestWins >= 1)
+        guard clinched, bestWins > otherBest else { return [] }
+        return (labels[key] ?? []).map(normalizedTeamNumber)
     }
 
     private func recentMatches(for teamID: Int, matches: [REMatch], numbers: [Int: String]) -> [RecentMatch] {
@@ -268,7 +308,8 @@ struct RobotEventsAPI {
                 label: label,
                 result: result,
                 scoreline: "\(ours.score)–\(theirs.score)",
-                detail: detail
+                detail: detail,
+                color: ours.color
             ))
             if rows.count == 5 { break }
         }
@@ -329,7 +370,7 @@ struct RobotEventsAPI {
     }
 
     private func makeURL(path: String, query: [URLQueryItem]) throws -> URL {
-        guard var components = URLComponents(string: "https://www.robotevents.com/api/v2" + path) else {
+        guard var components = URLComponents(string: "https://events.vex.com/api/v2" + path) else {
             throw APIError.message("Bad RobotEvents address.")
         }
         if !query.isEmpty { components.queryItems = query }
@@ -466,9 +507,10 @@ private struct RETeam: Decodable {
     var number: String
     var teamName: String
     var organization: String
+    var grade: String
 
     enum CodingKeys: String, CodingKey {
-        case id, number, organization
+        case id, number, organization, grade
         case teamName = "team_name"
     }
 
@@ -478,6 +520,7 @@ private struct RETeam: Decodable {
         number = try container.decodeIfPresent(String.self, forKey: .number) ?? ""
         teamName = try container.decodeIfPresent(String.self, forKey: .teamName) ?? ""
         organization = try container.decodeIfPresent(String.self, forKey: .organization) ?? ""
+        grade = try container.decodeIfPresent(String.self, forKey: .grade) ?? ""
     }
 }
 

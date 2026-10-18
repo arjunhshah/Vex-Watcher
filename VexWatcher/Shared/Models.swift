@@ -60,6 +60,40 @@ struct RecentMatch: Codable, Equatable, Identifiable {
     var result: String
     var scoreline: String
     var detail: String
+    var color: String
+
+    init(id: String, label: String, result: String, scoreline: String, detail: String, color: String = "") {
+        self.id = id
+        self.label = label
+        self.result = result
+        self.scoreline = scoreline
+        self.detail = detail
+        self.color = color
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        label = try container.decode(String.self, forKey: .label)
+        result = try container.decode(String.self, forKey: .result)
+        scoreline = try container.decode(String.self, forKey: .scoreline)
+        detail = try container.decode(String.self, forKey: .detail)
+        color = try container.decodeIfPresent(String.self, forKey: .color) ?? ""
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(label, forKey: .label)
+        try container.encode(result, forKey: .result)
+        try container.encode(scoreline, forKey: .scoreline)
+        try container.encode(detail, forKey: .detail)
+        try container.encode(color, forKey: .color)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, label, result, scoreline, detail, color
+    }
 }
 
 struct TeamReport: Codable, Identifiable, Equatable {
@@ -109,8 +143,74 @@ struct EventReport: Codable, Identifiable, Equatable {
     var updated: Date
     var teams: [TeamReport]
     var note: String
+    var championNumbers: [String]
+    var schoolLevels: [String: String]
 
     var id: Int { eventID }
+
+    init(
+        eventID: Int,
+        eventName: String,
+        sku: String,
+        divisionID: Int,
+        divisionName: String,
+        divisions: [DivisionInfo],
+        ongoing: Bool,
+        updated: Date,
+        teams: [TeamReport],
+        note: String,
+        championNumbers: [String] = [],
+        schoolLevels: [String: String] = [:]
+    ) {
+        self.eventID = eventID
+        self.eventName = eventName
+        self.sku = sku
+        self.divisionID = divisionID
+        self.divisionName = divisionName
+        self.divisions = divisions
+        self.ongoing = ongoing
+        self.updated = updated
+        self.teams = teams
+        self.note = note
+        self.championNumbers = championNumbers
+        self.schoolLevels = schoolLevels
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        eventID = try container.decode(Int.self, forKey: .eventID)
+        eventName = try container.decode(String.self, forKey: .eventName)
+        sku = try container.decode(String.self, forKey: .sku)
+        divisionID = try container.decode(Int.self, forKey: .divisionID)
+        divisionName = try container.decode(String.self, forKey: .divisionName)
+        divisions = try container.decode([DivisionInfo].self, forKey: .divisions)
+        ongoing = try container.decode(Bool.self, forKey: .ongoing)
+        updated = try container.decode(Date.self, forKey: .updated)
+        teams = try container.decode([TeamReport].self, forKey: .teams)
+        note = try container.decode(String.self, forKey: .note)
+        championNumbers = try container.decodeIfPresent([String].self, forKey: .championNumbers) ?? []
+        schoolLevels = try container.decodeIfPresent([String: String].self, forKey: .schoolLevels) ?? [:]
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(eventID, forKey: .eventID)
+        try container.encode(eventName, forKey: .eventName)
+        try container.encode(sku, forKey: .sku)
+        try container.encode(divisionID, forKey: .divisionID)
+        try container.encode(divisionName, forKey: .divisionName)
+        try container.encode(divisions, forKey: .divisions)
+        try container.encode(ongoing, forKey: .ongoing)
+        try container.encode(updated, forKey: .updated)
+        try container.encode(teams, forKey: .teams)
+        try container.encode(note, forKey: .note)
+        try container.encode(championNumbers, forKey: .championNumbers)
+        try container.encode(schoolLevels, forKey: .schoolLevels)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case eventID, eventName, sku, divisionID, divisionName, divisions, ongoing, updated, teams, note, championNumbers, schoolLevels
+    }
 }
 
 struct WatchSnapshot: Codable, Equatable {

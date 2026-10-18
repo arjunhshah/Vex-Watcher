@@ -8,19 +8,25 @@
 
 /* Begin PBXBuildFile section */
 		0EDE4B14C92E93E8390BFA16 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95419D6DF9BC44C13032DB21 /* Assets.xcassets */; };
+		114BC94E837DD83FA9F06B63 /* StrategyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A9096851758A18C837C9D95 /* StrategyView.swift */; };
 		12F2AB2AC27B1B1493AD589E /* VexWatcherWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 984D9BE8F70E65FFEE29AB38 /* VexWatcherWatch.app */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2E2EB492044638CE7F34C183 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1DABF591450F340D486A7FA /* API.swift */; };
+		4D784202E98E65500532FF9B /* AwardEligibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77E583E8BEBB775AD0E11479 /* AwardEligibility.swift */; };
+		4FDF99F416D235C15CDAA0F6 /* AwardEligibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77E583E8BEBB775AD0E11479 /* AwardEligibility.swift */; };
 		50F671EF45E3A7B84C5C69FD /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC51BDFE3C58C74DF3F1AA6 /* Models.swift */; };
 		82DCF15E1FA6C35C6D2E8767 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7856D732AC88593F028F5A /* Style.swift */; };
+		89B4A188E947A731FC37DF7F /* PitForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A7B2EE5A33B2BFBA627612 /* PitForm.swift */; };
 		9BEE193C59B528BD0223C3CE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AD077B5A94D0ADB6F69872A1 /* Assets.xcassets */; };
 		A7649E3C9641DC8B6EB16204 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCC51BDFE3C58C74DF3F1AA6 /* Models.swift */; };
 		B1A0B5CA8A24A400B4489774 /* PhoneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0096615B72321E060BBB206 /* PhoneModel.swift */; };
 		C0022E258927354E5BF6AC20 /* WatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA731AE3D31F6DEBC2CF4BF0 /* WatchApp.swift */; };
 		C1E62536F8838AF87F5E780D /* WatchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B233BCCCCF6293EA2FB2FC9 /* WatchView.swift */; };
 		C2034E342D308382F6B6D895 /* VexWatcherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C45AFBB900004D1D4C9838 /* VexWatcherApp.swift */; };
+		CCB655D0E115BED47922225B /* ScoutForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7203AB585EBCEE4A8BF0CC82 /* ScoutForm.swift */; };
 		CE0B2E9DDC82E2BC47AFF8A2 /* ScoutMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 462D17873113BAB45345B272 /* ScoutMath.swift */; };
 		CF5B8366C6FA09F190476822 /* Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7856D732AC88593F028F5A /* Style.swift */; };
 		D17AE9794D05C35E6B994343 /* WatchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1615A3C2DD78222893D6F308 /* WatchModel.swift */; };
+		F64BB65F35672310E96B0254 /* AwardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB6EA27DEA89A5FFB968D60D /* AwardsView.swift */; };
 		F89A0557F8F1B72D65F2A385 /* PhoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEC4D3B97C833144C6DBAA95 /* PhoneView.swift */; };
 		FEE88DDCFEF7C6EB578447CE /* ScoutMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 462D17873113BAB45345B272 /* ScoutMath.swift */; };
 /* End PBXBuildFile section */
@@ -51,18 +57,23 @@
 
 /* Begin PBXFileReference section */
 		1615A3C2DD78222893D6F308 /* WatchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchModel.swift; sourceTree = "<group>"; };
+		2A9096851758A18C837C9D95 /* StrategyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrategyView.swift; sourceTree = "<group>"; };
 		3B233BCCCCF6293EA2FB2FC9 /* WatchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchView.swift; sourceTree = "<group>"; };
 		44C45AFBB900004D1D4C9838 /* VexWatcherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VexWatcherApp.swift; sourceTree = "<group>"; };
 		462D17873113BAB45345B272 /* ScoutMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoutMath.swift; sourceTree = "<group>"; };
+		7203AB585EBCEE4A8BF0CC82 /* ScoutForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoutForm.swift; sourceTree = "<group>"; };
+		77E583E8BEBB775AD0E11479 /* AwardEligibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwardEligibility.swift; sourceTree = "<group>"; };
 		95419D6DF9BC44C13032DB21 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		984D9BE8F70E65FFEE29AB38 /* VexWatcherWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VexWatcherWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9D21BC27978F9D76FCECA436 /* VexWatcher.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VexWatcher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1DABF591450F340D486A7FA /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		AB6EA27DEA89A5FFB968D60D /* AwardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwardsView.swift; sourceTree = "<group>"; };
 		AD077B5A94D0ADB6F69872A1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BC7856D732AC88593F028F5A /* Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Style.swift; sourceTree = "<group>"; };
 		DCC51BDFE3C58C74DF3F1AA6 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		EEC4D3B97C833144C6DBAA95 /* PhoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneView.swift; sourceTree = "<group>"; };
 		F0096615B72321E060BBB206 /* PhoneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneModel.swift; sourceTree = "<group>"; };
+		F7A7B2EE5A33B2BFBA627612 /* PitForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PitForm.swift; sourceTree = "<group>"; };
 		FA731AE3D31F6DEBC2CF4BF0 /* WatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -99,6 +110,7 @@
 			isa = PBXGroup;
 			children = (
 				A1DABF591450F340D486A7FA /* API.swift */,
+				77E583E8BEBB775AD0E11479 /* AwardEligibility.swift */,
 				DCC51BDFE3C58C74DF3F1AA6 /* Models.swift */,
 				462D17873113BAB45345B272 /* ScoutMath.swift */,
 				BC7856D732AC88593F028F5A /* Style.swift */,
@@ -120,8 +132,12 @@
 			isa = PBXGroup;
 			children = (
 				95419D6DF9BC44C13032DB21 /* Assets.xcassets */,
+				AB6EA27DEA89A5FFB968D60D /* AwardsView.swift */,
 				F0096615B72321E060BBB206 /* PhoneModel.swift */,
 				EEC4D3B97C833144C6DBAA95 /* PhoneView.swift */,
+				F7A7B2EE5A33B2BFBA627612 /* PitForm.swift */,
+				7203AB585EBCEE4A8BF0CC82 /* ScoutForm.swift */,
+				2A9096851758A18C837C9D95 /* StrategyView.swift */,
 				44C45AFBB900004D1D4C9838 /* VexWatcherApp.swift */,
 			);
 			path = iOS;
@@ -229,6 +245,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D784202E98E65500532FF9B /* AwardEligibility.swift in Sources */,
 				50F671EF45E3A7B84C5C69FD /* Models.swift in Sources */,
 				FEE88DDCFEF7C6EB578447CE /* ScoutMath.swift in Sources */,
 				82DCF15E1FA6C35C6D2E8767 /* Style.swift in Sources */,
@@ -243,10 +260,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				2E2EB492044638CE7F34C183 /* API.swift in Sources */,
+				4FDF99F416D235C15CDAA0F6 /* AwardEligibility.swift in Sources */,
+				F64BB65F35672310E96B0254 /* AwardsView.swift in Sources */,
 				A7649E3C9641DC8B6EB16204 /* Models.swift in Sources */,
 				B1A0B5CA8A24A400B4489774 /* PhoneModel.swift in Sources */,
 				F89A0557F8F1B72D65F2A385 /* PhoneView.swift in Sources */,
+				89B4A188E947A731FC37DF7F /* PitForm.swift in Sources */,
+				CCB655D0E115BED47922225B /* ScoutForm.swift in Sources */,
 				CE0B2E9DDC82E2BC47AFF8A2 /* ScoutMath.swift in Sources */,
+				114BC94E837DD83FA9F06B63 /* StrategyView.swift in Sources */,
 				CF5B8366C6FA09F190476822 /* Style.swift in Sources */,
 				C2034E342D308382F6B6D895 /* VexWatcherApp.swift in Sources */,
 			);
@@ -332,7 +354,7 @@
 		44F030BA1F7E6439C604726D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VexWatcher/Watch/Info.plist;
@@ -394,7 +416,7 @@
 		FDEE3E255D2FAE3814533D14 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VexWatcher/Watch/Info.plist;
