@@ -15,6 +15,10 @@ final class PhoneModel: NSObject, ObservableObject {
     @Published var loading = false
     @Published var watchStatus = "Pair your Apple Watch"
     @Published var pendingEventID: Int?
+    @Published var compAlert: CompNotice?
+    @Published var writeups: [CompWriteup] = []
+    @Published var analysisLoading = false
+    @Published var analysisError: String?
 
     private var started = false
     private var generation = 0
@@ -115,6 +119,7 @@ final class PhoneModel: NSObject, ObservableObject {
                 status = "Loading events…"
                 events = try await api.events(teamID: team.id, seasonID: current.id)
                 cacheEvents()
+                armCompReminder()
             }
             if ticket != generation { return }
 
@@ -163,6 +168,7 @@ final class PhoneModel: NSObject, ObservableObject {
                 events.insert(event, at: 0)
             }
             pendingEventID = event.id
+            armCompReminder()
             await loadReport(for: event, divisionID: nil, ticket: ticket)
         } catch {
             if ticket != generation { return }
@@ -273,6 +279,60 @@ final class PhoneModel: NSObject, ObservableObject {
             report = saved
             status = "Updated \(saved.updated.formatted(date: .omitted, time: .shortened))"
         }
+        armCompReminder()
+    }
+
+    func loadAnalyses() async {
+        analysisLoading = true
+        defer { analysisLoading = false }
+        do {
+            let api = try client()
+            let streams = await api.webcasts()
+            let now = Date()
+            let past = events
+                .filter { event in
+                    if let end = event.end { return end < now }
+                    if let start = event.start { return start < now && !event.isLive }
+                    return false
+                }
+                .sorted { ($0.end ?? $0.start ?? .distantPast) > ($1.end ?? $1.start ?? .distantPast) }
+                .prefix(6)
+            var rows: [CompWriteup] = []
+            for event in past {
+                let loaded = try await api.report(event: event, divisionID: event.divisions.first?.id)
+                guard let home = myTeam(in: loaded) else { continue }
+                let played = home.wins + home.losses + home.ties
+                guard played > 0 || home.skillsTotal > 0 else { continue }
+                rows.append(PostGame.writeup(event: event, report: loaded, home: home, webcast: streams[event.sku.uppercased()]))
+            }
+            writeups = rows
+            analysisError = nil
+        } catch {
+            analysisError = error.localizedDescription
+        }
+    }
+
+    var liveWriteup: CompWriteup? {
+        guard let report, report.ongoing, let home = myTeam(in: report) else { return nil }
+        let event = events.first(where: { $0.id == report.eventID }) ?? event(from: report)
+        let played = home.wins + home.losses + home.ties
+        guard played > 0 || home.skillsTotal > 0 else { return nil }
+        return PostGame.writeup(event: event, report: report, home: home, webcast: nil, includeStreamNote: false)
+    }
+
+    func refreshCompAlert() {
+        compAlert = CompReminder.notice(events: events, team: teamNumber)
+    }
+
+    var nextCompLine: String? {
+        CompReminder.upcomingLine(events: events)
+    }
+
+    private func armCompReminder() {
+        refreshCompAlert()
+        let listed = events
+        let number = teamNumber
+        Task { await CompReminder.schedule(events: listed, team: number) }
     }
 
     private func cacheEvents() {

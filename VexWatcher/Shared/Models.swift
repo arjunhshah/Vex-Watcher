@@ -24,10 +24,11 @@ struct EventSummary: Codable, Identifiable, Hashable {
     var divisions: [DivisionInfo]
 
     var isLive: Bool {
-        if ongoing { return true }
         let now = Date()
+        if let end, now > end.addingTimeInterval(24 * 60 * 60) { return false }
+        if ongoing { return true }
         guard let start, let end else { return false }
-        return start <= now && now <= end.addingTimeInterval(20 * 60 * 60)
+        return start <= now && now <= end.addingTimeInterval(24 * 60 * 60)
     }
 
     var place: String {
@@ -132,6 +133,60 @@ struct TeamReport: Codable, Identifiable, Equatable {
     }
 }
 
+struct BracketSide: Codable, Equatable, Identifiable {
+    var color: String
+    var teams: [String]
+    var score: Int
+    var winner: Bool
+    var id: String { "\(color)-\(teams.joined(separator: "-"))-\(score)" }
+}
+
+struct BracketMatch: Codable, Equatable, Identifiable {
+    var id: String
+    var round: Int
+    var instance: Int
+    var matchnum: Int
+    var name: String
+    var scored: Bool
+    var sides: [BracketSide]
+}
+
+struct EventAward: Codable, Equatable, Identifiable {
+    var id: Int
+    var title: String
+    var order: Int
+    var winners: [String]
+    var qualifies: Bool
+
+    init(id: Int, title: String, order: Int, winners: [String], qualifies: Bool = false) {
+        self.id = id
+        self.title = title
+        self.order = order
+        self.winners = winners
+        self.qualifies = qualifies
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(Int.self, forKey: .id) ?? 0
+        title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
+        order = try container.decodeIfPresent(Int.self, forKey: .order) ?? 0
+        winners = try container.decodeIfPresent([String].self, forKey: .winners) ?? []
+        qualifies = try container.decodeIfPresent(Bool.self, forKey: .qualifies) ?? false
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(title, forKey: .title)
+        try container.encode(order, forKey: .order)
+        try container.encode(winners, forKey: .winners)
+        try container.encode(qualifies, forKey: .qualifies)
+    }
+
+    private enum CodingKeys: String, CodingKey { case id, title, order, winners, qualifies }
+}
+
 struct EventReport: Codable, Identifiable, Equatable {
     var eventID: Int
     var eventName: String
@@ -145,6 +200,8 @@ struct EventReport: Codable, Identifiable, Equatable {
     var note: String
     var championNumbers: [String]
     var schoolLevels: [String: String]
+    var bracket: [BracketMatch]
+    var awards: [EventAward]
 
     var id: Int { eventID }
 
@@ -160,7 +217,9 @@ struct EventReport: Codable, Identifiable, Equatable {
         teams: [TeamReport],
         note: String,
         championNumbers: [String] = [],
-        schoolLevels: [String: String] = [:]
+        schoolLevels: [String: String] = [:],
+        bracket: [BracketMatch] = [],
+        awards: [EventAward] = []
     ) {
         self.eventID = eventID
         self.eventName = eventName
@@ -174,6 +233,8 @@ struct EventReport: Codable, Identifiable, Equatable {
         self.note = note
         self.championNumbers = championNumbers
         self.schoolLevels = schoolLevels
+        self.bracket = bracket
+        self.awards = awards
     }
 
     init(from decoder: Decoder) throws {
@@ -190,6 +251,8 @@ struct EventReport: Codable, Identifiable, Equatable {
         note = try container.decode(String.self, forKey: .note)
         championNumbers = try container.decodeIfPresent([String].self, forKey: .championNumbers) ?? []
         schoolLevels = try container.decodeIfPresent([String: String].self, forKey: .schoolLevels) ?? [:]
+        bracket = try container.decodeIfPresent([BracketMatch].self, forKey: .bracket) ?? []
+        awards = try container.decodeIfPresent([EventAward].self, forKey: .awards) ?? []
     }
 
     func encode(to encoder: Encoder) throws {
@@ -206,10 +269,12 @@ struct EventReport: Codable, Identifiable, Equatable {
         try container.encode(note, forKey: .note)
         try container.encode(championNumbers, forKey: .championNumbers)
         try container.encode(schoolLevels, forKey: .schoolLevels)
+        try container.encode(bracket, forKey: .bracket)
+        try container.encode(awards, forKey: .awards)
     }
 
     private enum CodingKeys: String, CodingKey {
-        case eventID, eventName, sku, divisionID, divisionName, divisions, ongoing, updated, teams, note, championNumbers, schoolLevels
+        case eventID, eventName, sku, divisionID, divisionName, divisions, ongoing, updated, teams, note, championNumbers, schoolLevels, bracket, awards
     }
 }
 

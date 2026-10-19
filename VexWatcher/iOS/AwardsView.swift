@@ -80,6 +80,24 @@ struct AwardsView: View {
 
     private func awardCard(_ award: AwardCard) -> some View {
         VStack(alignment: .leading, spacing: 12) {
+            if !award.winners.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(award.id == "states" ? "Qualified for states" : "Winner")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    ForEach(award.winners, id: \.self) { winner in
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(winner)
+                                .font(.title2.weight(.bold).monospacedDigit())
+                            if let name = teamName(winner), !name.isEmpty {
+                                Text(name)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
             HStack(alignment: .firstTextBaseline) {
                 Text(award.name)
                     .font(.headline)
@@ -120,6 +138,13 @@ struct AwardsView: View {
         .vexCard()
     }
 
+    private func teamName(_ number: String) -> String? {
+        let key = normalizedTeamNumber(number)
+        guard let team = model.report?.teams.first(where: { normalizedTeamNumber($0.number) == key }) else { return nil }
+        if team.name.isEmpty || team.name == team.number { return nil }
+        return team.name
+    }
+
     private var teamLabel: String {
         if let team = model.report.flatMap({ model.myTeam(in: $0) }), !team.name.isEmpty {
             return "\(team.name) · award eligibility"
@@ -136,6 +161,19 @@ private struct EligibleTeamsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
+                if !award.winners.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(award.id == "states" ? "Qualified for states" : "Winner")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                        ForEach(award.winners, id: \.self) { winner in
+                            Text(winner)
+                                .font(.title2.weight(.bold).monospacedDigit())
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .vexCard()
+                }
                 Text(award.eligibleNote)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)

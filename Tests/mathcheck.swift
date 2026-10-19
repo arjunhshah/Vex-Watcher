@@ -72,6 +72,33 @@ struct MathCheck {
         check("A wins every other alliance", outlook.picks.first { $0.number == "A" }?.chance == 100)
         check("C wins about one in six", outlook.picks.first { $0.number == "C" }?.chance == 17)
 
+        let oddsHome = allianceTeam(id: 1, number: "95070D", opr: 30)
+        let oddsPartner = allianceTeam(id: 2, number: "1111A", opr: 28)
+        let oddsField = [
+            oddsHome,
+            oddsPartner,
+            allianceTeam(id: 3, number: "2222B", opr: 12),
+            allianceTeam(id: 4, number: "3333C", opr: 8)
+        ]
+        let oddsEvent = EventReport(
+            eventID: 1,
+            eventName: "Local Qualifier",
+            sku: "RE-V5RC-26-1000",
+            divisionID: 1,
+            divisionName: "Division 1",
+            divisions: [],
+            ongoing: true,
+            updated: Date(),
+            teams: oddsField,
+            note: ""
+        )
+        let alone = AwardEligibility.forecast(report: oddsEvent, home: oddsHome, partner: nil)
+        let paired = AwardEligibility.forecast(report: oddsEvent, home: oddsHome, partner: oddsPartner)
+        check("partner raises states chance", paired.states.chance > alone.states.chance)
+        check("worlds stays under states at a local event", paired.worlds.chance < paired.states.chance)
+        let streams = PostGame.webcastMap(from: "Local Qualifier (RE-V5RC-26-1000) | https://www.youtube.com/live/abc123 | Next (RE-V5RC-26-1001)")
+        check("webcast sku maps to the stream", streams["RE-V5RC-26-1000"] == "https://www.youtube.com/live/abc123")
+
         if let problem = ScoutMath.selfCheck() {
             failed += 1
             print("FAIL selfCheck \(problem)")

@@ -22,6 +22,27 @@ struct AwardCard: Identifiable, Equatable {
     var criteria: [AwardGate]
     var eligible: [EligibleTeam] = []
     var eligibleNote: String = ""
+    var winners: [String] = []
+}
+
+struct OddsPath: Identifiable, Equatable {
+    var id: String
+    var name: String
+    var chance: Int
+    var detail: String
+}
+
+struct LevelOdds: Equatable {
+    var name: String
+    var chance: Int
+    var detail: String
+    var paths: [OddsPath]
+}
+
+struct QualificationForecast: Equatable {
+    var eventName: String
+    var states: LevelOdds
+    var worlds: LevelOdds
 }
 
 struct AwardReadout: Equatable {
@@ -164,7 +185,7 @@ enum AwardEligibility {
             fieldSize: field,
             cutoff: need,
             gates: gates,
-            awards: awards,
+            awards: stampWinners(awards, posted: report.awards, teams: report.teams),
             scoreGatesMet: ready,
             headline: headline,
             detail: detail
@@ -495,6 +516,73 @@ enum AwardEligibility {
         ]
     }
 
+    private static func stampWinners(_ awards: [AwardCard], posted: [EventAward], teams: [TeamReport]) -> [AwardCard] {
+        awards.map { award in
+            var copy = award
+            let numbers = award.id == "states" ? statesQualifiers(posted) : winners(matching: award.id, in: posted)
+            copy.winners = unique(numbers).map { teamLabel($0, teams: teams) }
+            return copy
+        }
+    }
+
+    private static func statesQualifiers(_ posted: [EventAward]) -> [String] {
+        posted
+            .filter { $0.qualifies || qualifiesForStates($0.title) }
+            .flatMap(\.winners)
+    }
+
+    private static func winners(matching id: String, in posted: [EventAward]) -> [String] {
+        posted.filter { awardMatches($0.title, id: id) }.flatMap(\.winners)
+    }
+
+    private static func qualifiesForStates(_ title: String) -> Bool {
+        let text = title.lowercased()
+        if text.contains("judge") || text.contains("inspire") || text.contains("energy") || text.contains("sportsmanship") {
+            return false
+        }
+        let keys = ["excellence", "tournament champion", "design", "skills champion", "robot skills", "innovate", "finalist", "think", "amaze", "build", "create"]
+        return keys.contains { text.contains($0) }
+    }
+
+    private static func awardMatches(_ title: String, id: String) -> Bool {
+        let text = title.lowercased()
+        switch id {
+        case "excellence": return text.contains("excellence")
+        case "skills-champion": return text.contains("skills champion") || text.contains("robot skills champion")
+        case "tournament": return text.contains("tournament champion") && !text.contains("finalist")
+        case "design": return text.contains("design")
+        case "innovate": return text.contains("innovate")
+        case "think": return text.contains("think")
+        case "amaze": return text.contains("amaze")
+        case "build": return text.contains("build")
+        case "create": return text.contains("create")
+        case "judges": return text.contains("judge")
+        case "inspire": return text.contains("inspire")
+        case "sportsmanship": return text.contains("sportsmanship")
+        case "energy": return text.contains("energy")
+        default: return false
+        }
+    }
+
+    private static func teamLabel(_ number: String, teams: [TeamReport]) -> String {
+        let key = normalizedTeamNumber(number)
+        guard let team = teams.first(where: { normalizedTeamNumber($0.number) == key }) else {
+            return normalizedTeamNumber(number).isEmpty ? number : normalizedTeamNumber(number)
+        }
+        return team.number
+    }
+
+    private static func unique(_ numbers: [String]) -> [String] {
+        var seen = Set<String>()
+        var rows: [String] = []
+        for number in numbers {
+            let key = normalizedTeamNumber(number)
+            guard !key.isEmpty, seen.insert(key).inserted else { continue }
+            rows.append(number)
+        }
+        return rows
+    }
+
     private static func pathwayCards() -> [AwardCard] {
         [
             AwardCard(
@@ -519,6 +607,167 @@ enum AwardEligibility {
                 ]
             )
         ]
+    }
+
+    static func forecast(report: EventReport, home: TeamReport, partner: TeamReport?) -> QualificationForecast {
+        let kind = eventKind(report)
+        let wonFinals = report.championNumbers.contains { normalizedTeamNumber($0) == normalizedTeamNumber(home.number) }
+        let excellence = excellenceChance(home: home, report: report)
+        let skills = skillsChance(home: home, teams: report.teams)
+        let elim = eliminationChance(home: home, partner: partner, teams: report.teams, wonFinals: wonFinals)
+        let judged = judgedChance(home)
+        let statesPaths = [
+            excellence.path,
+            skills.path,
+            elim.path,
+            judged.path
+        ]
+        let statesPercent: Int
+        let statesDetail: String
+        switch kind {
+        case .championship:
+            statesPercent = 100
+            statesDetail = "This event is the championship, so 95070D is already at states. The next level is Worlds."
+        case .signature:
+            statesPercent = combine(statesPaths.map(\.chance))
+            statesDetail = "This signature event’s Worlds spots are Excellence and Tournament Champions. States still comes from a Region 2 qualifying award."
+        case .local:
+            statesPercent = combine(statesPaths.map(\.chance))
+            statesDetail = "Chance a qualifying award at this event sends 95070D to the California Region 2 middle school championship."
+        }
+
+        let worlds: LevelOdds
+        switch kind {
+        case .signature:
+            let direct = combine([excellence.path.chance, elim.path.chance])
+            worlds = LevelOdds(
+                name: "Worlds",
+                chance: direct,
+                detail: "At this signature event, Excellence and Tournament Champions go straight to Worlds.",
+                paths: [excellence.path, elim.path]
+            )
+        case .championship:
+            let design = OddsPath(
+                id: "design",
+                name: "Design or Innovate",
+                chance: min(12, max(2, home.overall / 8)),
+                detail: "Those two judged awards are inside the 8 Region 2 Worlds spots. The rankings cannot see the notebook."
+            )
+            worlds = LevelOdds(
+                name: "Worlds",
+                chance: combine([excellence.path.chance, skills.path.chance, elim.path.chance, design.chance]),
+                detail: "Eight Region 2 middle school spots: Excellence, both Tournament Champions, Design, Skills Champion, Innovate, and both Finalists.",
+                paths: [excellence.path, skills.path, elim.path, design]
+            )
+        case .local:
+            let statesRate = Double(statesPercent) / 100
+            let atStates = min(0.22, 0.05 + Double(home.overall) / 700 + elim.rate * 0.08)
+            let worldsPercent = min(40, max(1, Int((statesRate * atStates * 100).rounded())))
+            worlds = LevelOdds(
+                name: "Worlds",
+                chance: worldsPercent,
+                detail: "A local event does not give a Worlds spot. This is the chance of making states, then taking one of the 8 Region 2 middle school spots.",
+                paths: [
+                    OddsPath(id: "via-states", name: "Make states first", chance: statesPercent, detail: statesDetail),
+                    OddsPath(id: "at-states", name: "Then a Worlds spot", chance: Int((atStates * 100).rounded()), detail: "Eight spots at the Region 2 middle school championship, plus signature events.")
+                ]
+            )
+        }
+
+        return QualificationForecast(
+            eventName: report.eventName,
+            states: LevelOdds(name: "States", chance: statesPercent, detail: statesDetail, paths: kind == .championship ? [] : statesPaths),
+            worlds: worlds
+        )
+    }
+
+    private static func excellenceChance(home: TeamReport, report: EventReport) -> (path: OddsPath, rate: Double) {
+        let passers = report.teams.filter { passesExcellence($0, teams: report.teams, levels: report.schoolLevels) }
+        let ready = passers.contains { $0.id == home.id }
+        let rate = ready ? min(0.40, 0.65 / Double(max(passers.count, 1))) : 0
+        let detail = ready
+            ? "Inside the Excellence score gates, with \(passers.count) team\(passers.count == 1 ? "" : "s") in that group. Judges still have to accept the notebook and interview."
+            : "Outside the Excellence score gates, so this award is not a path yet."
+        return (OddsPath(id: "excellence", name: "Excellence", chance: percent(rate), detail: detail), rate)
+    }
+
+    private static func skillsChance(home: TeamReport, teams: [TeamReport]) -> (path: OddsPath, rate: Double) {
+        let best = teams.map(\.skillsTotal).max() ?? 0
+        let leaders = teams.filter { best > 0 && $0.skillsTotal == best }
+        let leading = leaders.contains { $0.id == home.id }
+        let rate: Double
+        let detail: String
+        if best == 0 {
+            rate = 0.04
+            detail = "Nobody has a skills score yet."
+        } else if leading {
+            rate = leaders.count == 1 ? 0.70 : min(0.45, 0.70 / Double(leaders.count))
+            detail = leaders.count == 1 ? "Highest combined skills score right now." : "Tied for the highest skills score."
+        } else {
+            rate = min(0.12, Double(home.skillsTotal) / Double(best) * 0.12)
+            detail = "Behind the skills leader at \(best). The leader can still change before the event ends."
+        }
+        return (OddsPath(id: "skills", name: "Skills Champion", chance: percent(rate), detail: detail), rate)
+    }
+
+    private static func eliminationChance(home: TeamReport, partner: TeamReport?, teams: [TeamReport], wonFinals: Bool) -> (path: OddsPath, rate: Double) {
+        if wonFinals {
+            return (OddsPath(id: "elim", name: "Tournament", chance: 90, detail: "This alliance already won the finals."), 0.90)
+        }
+        guard let partner else {
+            return (OddsPath(id: "elim", name: "Tournament", chance: 0, detail: "Lock an alliance partner for this event. Tournament Champions and Finalists use that robot."), 0)
+        }
+        let outlook = ScoutMath.allianceChances(home: home, teams: teams)
+        let wanted = normalizedTeamNumber(partner.number)
+        let match = outlook.picks.first { normalizedTeamNumber($0.number) == wanted }?.chance ?? 0
+        let win = Double(match) / 100
+        let rate = min(0.75, win * win)
+        return (
+            OddsPath(
+                id: "elim",
+                name: "Tournament with \(partner.number)",
+                chance: percent(rate),
+                detail: "With \(partner.number), about \(match)% to beat a random other alliance. Reaching the finals is a qualifying spot."
+            ),
+            rate
+        )
+    }
+
+    private static func judgedChance(_ home: TeamReport) -> (path: OddsPath, rate: Double) {
+        let rate = min(0.14, Double(home.overall) / 600)
+        return (
+            OddsPath(
+                id: "judged",
+                name: "Other qualifying awards",
+                chance: percent(rate),
+                detail: "Design, Innovate, Think, Amaze, Build, and Create are picked by judges. This slice comes from the event rating."
+            ),
+            rate
+        )
+    }
+
+    private static func eventKind(_ report: EventReport) -> EventKind {
+        let blob = "\(report.eventName) \(report.sku)".lowercased()
+        if blob.contains("signature") || blob.contains("4560") { return .signature }
+        if blob.contains("championship") { return .championship }
+        return .local
+    }
+
+    private static func combine(_ percents: [Int]) -> Int {
+        let missed = percents.reduce(1.0) { product, chance in
+            product * (1 - min(0.95, max(0, Double(chance) / 100)))
+        }
+        return min(90, max(1, Int(((1 - missed) * 100).rounded())))
+    }
+
+    private static func percent(_ rate: Double) -> Int {
+        min(90, max(0, Int((rate * 100).rounded())))
+    }
+
+    private enum EventKind {
+        case local
+        case championship
+        case signature
     }
 
     private static func path(_ id: String, _ name: String, _ line: String, _ detail: String) -> AwardGate {

@@ -66,6 +66,18 @@ struct RobotEventsAPI {
         return rows.map(Self.summary)
     }
 
+    func webcasts() async -> [String: String] {
+        guard let url = URL(string: "https://events.vex.com/webcasts") else { return [:] }
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            guard let http = response as? HTTPURLResponse, http.statusCode == 200,
+                  let page = String(data: data, encoding: .utf8) else { return [:] }
+            return PostGame.webcastMap(from: page)
+        } catch {
+            return [:]
+        }
+    }
+
     func event(sku: String) async throws -> EventSummary? {
         let cleaned = sku.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         guard !cleaned.isEmpty else { return nil }
@@ -110,12 +122,14 @@ struct RobotEventsAPI {
             "/events/\(event.id)/divisions/\(division.id)/matches",
             query: [URLQueryItem(name: "per_page", value: "100")]
         )
+        async let awardRows: [REAward] = eventAwards(event.id)
 
         let rankings = try await rankingRows
         let skills = try await skillRows
         let teams = try await teamRows
         let matches = try await matchRows
-        return buildReport(event: event, division: division, divisions: divisions, rankings: rankings, skills: skills, teams: teams, matches: matches)
+        let awards = await awardRows
+        return buildReport(event: event, division: division, divisions: divisions, rankings: rankings, skills: skills, teams: teams, matches: matches, awards: awards)
     }
 
     private func buildReport(
@@ -125,7 +139,8 @@ struct RobotEventsAPI {
         rankings: [RERanking],
         skills: [RESkill],
         teams: [RETeam],
-        matches: [REMatch]
+        matches: [REMatch],
+        awards: [REAward]
     ) -> EventReport {
         var roster: [Int: RETeam] = [:]
         for team in teams { roster[team.id] = team }
@@ -194,7 +209,9 @@ struct RobotEventsAPI {
             teams: rated,
             note: note,
             championNumbers: championNumbers(matches: matches, numbers: numbers, eventFinished: !event.isLive),
-            schoolLevels: schoolLevels(teams)
+            schoolLevels: schoolLevels(teams),
+            bracket: bracketMatches(matches, numbers: numbers, eventFinished: !event.isLive),
+            awards: postedAwards(awards, numbers: numbers)
         )
     }
 
@@ -241,6 +258,70 @@ struct RobotEventsAPI {
             levels[number] = grade
         }
         return levels
+    }
+
+    private func postedAwards(_ awards: [REAward], numbers: [Int: String]) -> [EventAward] {
+        awards
+            .sorted { $0.order < $1.order }
+            .map { award in
+                let winners = award.winners.compactMap { winner -> String? in
+                    let posted = winner.number.isEmpty ? (numbers[winner.teamID] ?? "") : winner.number
+                    let cleaned = normalizedTeamNumber(posted)
+                    return cleaned.isEmpty ? nil : cleaned
+                }
+                return EventAward(
+                    id: award.id,
+                    title: shortAwardTitle(award.title),
+                    order: award.order,
+                    winners: winners,
+                    qualifies: award.qualifiesForStates
+                )
+            }
+            .filter { !$0.title.isEmpty }
+    }
+
+    private func shortAwardTitle(_ title: String) -> String {
+        var text = title
+        for suffix in [" (VRC/VEXU)", " (VRC)", " (VEXU)", " (VIQRC)"] {
+            text = text.replacingOccurrences(of: suffix, with: "")
+        }
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func bracketMatches(_ matches: [REMatch], numbers: [Int: String], eventFinished: Bool) -> [BracketMatch] {
+        let rows = matches
+            .filter { $0.round >= 3 }
+            .sorted { lhs, rhs in
+                let left = lhs.round * 10_000 + lhs.instance * 100 + lhs.matchnum
+                let right = rhs.round * 10_000 + rhs.instance * 100 + rhs.matchnum
+                return left < right
+            }
+            .map { match in
+                let scores = match.alliances.map(\.score)
+                let best = scores.max() ?? 0
+                let played = match.scored || scores.contains { $0 > 0 }
+                let decided = played && scores.filter { $0 == best }.count == 1 && best > 0
+                let sides = match.alliances.map { alliance in
+                    BracketSide(
+                        color: alliance.color,
+                        teams: alliance.teams.filter { !$0.sitting }.compactMap { numbers[$0.teamID] },
+                        score: alliance.score,
+                        winner: decided && alliance.score == best
+                    )
+                }
+                let label = match.name.isEmpty ? "Match \(match.matchnum)" : match.name
+                return BracketMatch(
+                    id: "\(match.round)-\(match.instance)-\(match.matchnum)",
+                    round: match.round,
+                    instance: match.instance,
+                    matchnum: match.matchnum,
+                    name: label,
+                    scored: played,
+                    sides: sides
+                )
+            }
+        guard eventFinished else { return rows }
+        return rows.filter(\.scored)
     }
 
     private func championNumbers(matches: [REMatch], numbers: [Int: String], eventFinished: Bool) -> [String] {
@@ -311,7 +392,6 @@ struct RobotEventsAPI {
                 detail: detail,
                 color: ours.color
             ))
-            if rows.count == 5 { break }
         }
         return rows
     }
@@ -328,6 +408,15 @@ struct RobotEventsAPI {
             ongoing: event.ongoing,
             divisions: event.divisions.sorted { $0.order < $1.order }
         )
+    }
+
+    private func eventAwards(_ eventID: Int) async -> [REAward] {
+        guard let url = try? makeURL(
+            path: "/events/\(eventID)/awards",
+            query: [URLQueryItem(name: "per_page", value: "250")]
+        ) else { return [] }
+        guard let data = try? await fetchData(url) else { return [] }
+        return REAward.parse(data)
     }
 
     private func collect<T: Decodable>(_ path: String, query: [URLQueryItem]) async throws -> [T] {
@@ -348,7 +437,7 @@ struct RobotEventsAPI {
         return items
     }
 
-    private func fetch<T: Decodable>(_ url: URL) async throws -> T {
+    private func fetchData(_ url: URL) async throws -> Data {
         var request = URLRequest(url: url, timeoutInterval: 30)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -360,6 +449,11 @@ struct RobotEventsAPI {
             let message = (try? JSONDecoder().decode(APIMessage.self, from: data))?.message
             throw APIError.message(message ?? "RobotEvents returned \(status).")
         }
+        return data
+    }
+
+    private func fetch<T: Decodable>(_ url: URL) async throws -> T {
+        let data = try await fetchData(url)
         do {
             return try JSONDecoder().decode(T.self, from: data)
         } catch let error as DecodingError {
@@ -585,6 +679,79 @@ private struct RESkill: Decodable {
     }
 }
 
+private struct REAward {
+    var id: Int
+    var title: String
+    var order: Int
+    var winners: [REAwardWinner]
+    var qualifiesForStates: Bool
+
+    static func parse(_ data: Data) -> [REAward] {
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return [] }
+        let rows = (root["data"] as? [[String: Any]]) ?? (root["awards"] as? [[String: Any]]) ?? []
+        return rows.compactMap { row in
+            let title = jsonString(row["title"]).isEmpty ? jsonString(row["name"]) : jsonString(row["title"])
+            guard !title.isEmpty else { return nil }
+            let winnerRows = (row["team_winners"] as? [[String: Any]]) ?? (row["teamWinners"] as? [[String: Any]]) ?? []
+            let winners = winnerRows.map { item -> REAwardWinner in
+                let team = (item["team"] as? [String: Any]) ?? item
+                let postedNumber = jsonString(team["number"])
+                let code = jsonString(team["code"])
+                let name = jsonString(team["name"])
+                let number = [postedNumber, code, name].first { candidate in
+                    candidate.range(of: #"\d"#, options: .regularExpression) != nil
+                } ?? ""
+                return REAwardWinner(
+                    teamID: jsonInt(team["id"]),
+                    number: number
+                )
+            }
+            let qualifications = qualificationTexts(row["qualifications"])
+            let qualifies = qualifications.contains { text in
+                let lower = text.lowercased()
+                let region = lower.contains("region") || lower.contains("state")
+                return region && !lower.contains("world")
+            }
+            return REAward(
+                id: jsonInt(row["id"]),
+                title: title,
+                order: jsonInt(row["order"]),
+                winners: winners,
+                qualifiesForStates: qualifies
+            )
+        }
+    }
+}
+
+private struct REAwardWinner {
+    var teamID: Int
+    var number: String
+}
+
+private func jsonInt(_ value: Any?) -> Int {
+    if let number = value as? Int { return number }
+    if let number = value as? NSNumber { return number.intValue }
+    if let text = value as? String, let number = Int(text) { return number }
+    return 0
+}
+
+private func qualificationTexts(_ value: Any?) -> [String] {
+    if let texts = value as? [String] { return texts }
+    if let rows = value as? [[String: Any]] {
+        return rows.flatMap { row in
+            [jsonString(row["type"]), jsonString(row["name"]), jsonString(row["code"]), jsonString(row["title"])]
+                .filter { !$0.isEmpty }
+        }
+    }
+    return []
+}
+
+private func jsonString(_ value: Any?) -> String {
+    if let text = value as? String { return text }
+    if let number = value as? NSNumber { return number.stringValue }
+    return ""
+}
+
 private struct REMatch: Decodable {
     var round: Int
     var instance: Int
@@ -603,7 +770,13 @@ private struct REMatch: Decodable {
         instance = try container.decodeIfPresent(FlexInt.self, forKey: .instance)?.value ?? 0
         matchnum = try container.decodeIfPresent(FlexInt.self, forKey: .matchnum)?.value ?? 0
         name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
-        scored = try container.decodeIfPresent(Bool.self, forKey: .scored) ?? false
+        if let flag = try? container.decode(Bool.self, forKey: .scored) {
+            scored = flag
+        } else if let number = try? container.decode(FlexInt.self, forKey: .scored) {
+            scored = number.value != 0
+        } else {
+            scored = false
+        }
         alliances = try container.decodeIfPresent([REAlliance].self, forKey: .alliances) ?? []
     }
 }

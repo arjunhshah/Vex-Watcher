@@ -30,6 +30,18 @@ struct PhoneView: View {
                 .tabItem {
                     Label("Pit", systemImage: "wrench.and.screwdriver")
                 }
+            ProbabilityView(model: model)
+                .tabItem {
+                    Label("Probability", systemImage: "percent")
+                }
+            BracketView(model: model)
+                .tabItem {
+                    Label("Bracket", systemImage: "square.split.2x2")
+                }
+            AnalysisView(model: model)
+                .tabItem {
+                    Label("Analysis", systemImage: "doc.text.magnifyingglass")
+                }
             AllianceView(model: model)
                 .tabItem {
                     Label("Alliance", systemImage: "person.2")
@@ -40,7 +52,45 @@ struct PhoneView: View {
                 }
         }
         .tint(.accentColor)
-        .task { await model.bootstrap() }
+        .task {
+            await model.bootstrap()
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(45))
+                guard let report = model.report else { continue }
+                let elimWaiting = report.bracket.contains { !$0.scored }
+                let event = model.events.first { $0.id == report.eventID }
+                let anchor = event?.end ?? event?.start
+                let recent = anchor.map { abs($0.timeIntervalSinceNow) < 36 * 60 * 60 } ?? false
+                let awardsWaiting = report.awards.isEmpty && (report.ongoing || recent)
+                guard report.ongoing || elimWaiting || awardsWaiting else { continue }
+                await model.open(eventID: report.eventID, divisionID: report.divisionID, quiet: true)
+            }
+        }
+        .task {
+            while !Task.isCancelled {
+                model.refreshCompAlert()
+                try? await Task.sleep(for: .seconds(15))
+            }
+        }
+        .overlay(alignment: .top) {
+            if let alert = model.compAlert {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(alert.title)
+                        .font(.headline)
+                    Text(alert.detail)
+                        .font(.subheadline)
+                }
+                .foregroundStyle(.white)
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(VexLook.red, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .shadow(color: VexLook.red.opacity(0.45), radius: 14, y: 6)
+                .padding(.horizontal, 16)
+                .padding(.top, 6)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(response: 0.45, dampingFraction: 0.82), value: model.compAlert)
     }
 
     private var eventsRoot: some View {
@@ -156,6 +206,11 @@ private struct HomeScreen: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Events")
                 .font(.headline)
+            if let next = model.nextCompLine {
+                Text(next)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
             if model.orderedEvents.isEmpty {
                 Text(model.token.isEmpty
                     ? "Tap Token and paste a free Robot Events API token from events.vex.com/api/v2."

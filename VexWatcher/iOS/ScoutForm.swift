@@ -18,6 +18,9 @@ struct ScoutEntry: Identifiable, Equatable {
     var strategy: String
     var pins: Int
     var cups: Int
+    var yellowPins: Int = 0
+    var toggles: Int = 0
+    var midfield: Bool = false
 
     var percent: Int {
         let autoScore: Double
@@ -46,7 +49,17 @@ struct ScoutEntry: Identifiable, Equatable {
     var summary: String {
         var parts = ["Auto \(autonomous.lowercased())"]
         if autonomousWinPoint { parts.append("AWP") }
+        if pins > 0 { parts.append("\(pins) pins") }
+        if yellowPins > 0 { parts.append("\(yellowPins) yellow") }
+        if cups > 0 { parts.append("\(cups) cups") }
+        if toggles > 0 { parts.append("\(toggles) toggles") }
+        if midfield { parts.append("midfield") }
+        if penalties > 0 { parts.append("\(penalties) penalties") }
         return parts.joined(separator: " · ")
+    }
+
+    var objectPoints: Int {
+        pins * 5 + yellowPins * 10 + (midfield ? 8 : 0)
     }
 }
 
@@ -54,6 +67,7 @@ extension ScoutEntry: Codable {
     enum CodingKeys: String, CodingKey {
         case id, created, teamNumber, matchLabel, alliance, autonomous, autonomousWinPoint
         case driver, scoring, consistency, defense, result, penalties, notes, strategy, pins, cups
+        case yellowPins, toggles, midfield
     }
 
     init(from decoder: Decoder) throws {
@@ -75,6 +89,9 @@ extension ScoutEntry: Codable {
         strategy = try container.decodeIfPresent(String.self, forKey: .strategy) ?? ""
         pins = try container.decodeIfPresent(Int.self, forKey: .pins) ?? 0
         cups = try container.decodeIfPresent(Int.self, forKey: .cups) ?? 0
+        yellowPins = try container.decodeIfPresent(Int.self, forKey: .yellowPins) ?? 0
+        toggles = try container.decodeIfPresent(Int.self, forKey: .toggles) ?? 0
+        midfield = try container.decodeIfPresent(Bool.self, forKey: .midfield) ?? false
     }
 
     func encode(to encoder: Encoder) throws {
@@ -96,6 +113,9 @@ extension ScoutEntry: Codable {
         try container.encode(strategy, forKey: .strategy)
         try container.encode(pins, forKey: .pins)
         try container.encode(cups, forKey: .cups)
+        try container.encode(yellowPins, forKey: .yellowPins)
+        try container.encode(toggles, forKey: .toggles)
+        try container.encode(midfield, forKey: .midfield)
     }
 }
 
@@ -192,6 +212,22 @@ struct ScoutFormView: View {
                     }
                     .pickerStyle(.segmented)
                     Toggle("Autonomous win point", isOn: $draft.autonomousWinPoint)
+                }
+
+                Section {
+                    Stepper("Alliance pins: \(draft.pins)", value: $draft.pins, in: 0...40)
+                    Stepper("Yellow pins: \(draft.yellowPins)", value: $draft.yellowPins, in: 0...40)
+                    Stepper("Cups: \(draft.cups)", value: $draft.cups, in: 0...40)
+                    Stepper("Toggles set: \(draft.toggles)", value: $draft.toggles, in: 0...4)
+                    Toggle("Ended in the midfield", isOn: $draft.midfield)
+                    Stepper("Penalties: \(draft.penalties)", value: $draft.penalties, in: 0...10)
+                    Text("About \(draft.objectPoints) points from pins and midfield.")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(VexLook.red)
+                } header: {
+                    Text("What they scored")
+                } footer: {
+                    Text("Alliance pins are 5 points. Yellow pins are 10. A robot in the midfield at the end is 8. Cups show how they stacked.")
                 }
 
                 Section("What they can do") {
@@ -302,6 +338,9 @@ struct ScoutDraft {
     var penalties = 0
     var pins = 0
     var cups = 0
+    var yellowPins = 0
+    var toggles = 0
+    var midfield = false
     var notes = ""
     var strategy = ""
     var guessed = false
@@ -324,6 +363,9 @@ struct ScoutDraft {
         penalties = entry.penalties
         pins = entry.pins
         cups = entry.cups
+        yellowPins = entry.yellowPins
+        toggles = entry.toggles
+        midfield = entry.midfield
         notes = entry.notes
         strategy = entry.strategy
         guessed = false
@@ -337,6 +379,9 @@ struct ScoutDraft {
         penalties = 0
         pins = 0
         cups = 0
+        yellowPins = 0
+        toggles = 0
+        midfield = false
 
         let latest = team.recent.first
         matchLabel = latest?.label ?? ""
@@ -437,6 +482,8 @@ struct ScoutDraft {
 
     var percent: Int { entry(teamNumber: normalizedTeamNumber(teamNumber)).percent }
 
+    var objectPoints: Int { entry(teamNumber: normalizedTeamNumber(teamNumber)).objectPoints }
+
     var grade: String {
         switch percent {
         case 85...: return "Elite"
@@ -465,7 +512,10 @@ struct ScoutDraft {
             notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
             strategy: strategy.trimmingCharacters(in: .whitespacesAndNewlines),
             pins: pins,
-            cups: cups
+            cups: cups,
+            yellowPins: yellowPins,
+            toggles: toggles,
+            midfield: midfield
         )
     }
 }
